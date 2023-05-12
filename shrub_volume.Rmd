@@ -1,0 +1,148 @@
+---
+title: "Data Wrangling"
+author: "Erwing"
+date: "2023-05-09"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Dr. Granger investigates factors which control carbon storage units and size of shrubs. The experiment involves analysis of three treatments which affect shrub volume at four areas.
+
+## This code is to load in the csv, was not previously able to load in with simple read.csv(file, 'shrub-volume-data.csv') needed to specify file location
+
+## Exercise 6
+
+##Load in package dplyr
+
+```{r}
+library(dplyr)
+```
+
+## Load in the data sets for shrub data, species, and plots.
+
+```{r}
+shrub_data <- read.csv('/Users/sanch/Documents/Schooldownloads/BIO197/Rstudio/Homeworks/Homeworks/data-raw/shrub-volume-data.csv')
+```
+
+```{r}
+species <- read.csv('/Users/sanch/Documents/Schooldownloads/BIO197/Rstudio/Homeworks/Homeworks/data-raw/species.csv')
+```
+
+```{r}
+plots <- read.csv('/Users/sanch/Documents/Schooldownloads/BIO197/Rstudio/Homeworks/Homeworks/data-raw/plots.csv')
+```
+
+##Prints out the data from column "length"
+```{r}
+print(shrub_data$length)
+```
+##Prints out the data from column "length"
+```{r}
+print(shrub_data$site)
+```
+##Prints out the data from column "length"
+```{r}
+print(shrub_data$experiment)
+```
+##This code makes the area column from the length times the width
+```{r}
+area <- (shrub_data$length*shrub_data$width)
+```
+##This code adds the area column previously made to the shrub_data dataframe
+```{r}
+shrub_data$area <- area
+```
+##This code checks that the column was actually added
+```{r}
+View(shrub_data)
+```
+##Was able to load in dplyr package for the arrange function, but was not able to use it because library() fx would present 
+##Error: package or namespace load failed for ‘dplyr’ in loadNamespace(i, c(lib.loc, .libPaths()), versionCheck = vI[[i]]): namespace ‘rlang’ 1.0.6 is already loaded, but >= 1.1.0 is required In addition: Warning message:package ‘dplyr’ was built under R version 4.2.3 
+
+##Used this code to arrange by length instead
+```{r}
+shrub_data_column <- shrub_data[order(shrub_data$length),]
+```
+
+##Ensure data frame is arranged by length by view code
+
+```{r}
+View(shrub_data_column)
+```
+
+##Was not able to get the filter function to work properly, ended up getting only a single row produced which had values not even related to the original data frame
+
+##This code creates the shrub_volumes column(vector) by multiplying the existing length, width, height of the shrubd_data_column dataframe
+```{r}
+shrub_volumes <- (shrub_data_column$length*shrub_data_column$width*shrub_data_column$height)
+```
+
+##This code adds shrub_volumes to the shrub_data_column dataframe which can also be viewed with the view function
+
+```{r}
+shrub_data_column$shrub_volumes <- shrub_volumes
+View(shrub_data_column)
+```
+
+
+## Exercise 7 Data aggregation
+
+It is desired to create a summary for Dr. Granger's plants for each site and for each experiment. In the following section we will be coding for obtaining various values based on factors such as max, or from calculated values such as volume.
+
+```{r}
+shrub_dims <- read.csv('/Users/sanch/Documents/Schooldownloads/BIO197/Rstudio/Homeworks/Homeworks/data-raw/shrub-volume-data.csv')
+```
+
+##Grouping by site code is found below, but could not use had to resort to another code
+```{r}
+by_site <- group_by(shrub_dims, site)
+```
+
+##Taking the average height of each plant in each experiment code is found below
+```{r}
+avg_height <- summarize(by_site, avg_height = mean(height))
+```
+
+##Printing the average height of each plant
+```{r}
+print(avg_height)
+```
+##Code to take the max height for each plant at each site of shrub_dims. Was unsure how to go about using the max() so I used tapply() and involved max within
+
+```{r}
+tapply(shrub_dims$height,shrub_dims$site,max)
+```
+
+##Was not able to complete 3 as was unsure how to go about applying previous code used but in the form of a pipeline as it is all in one step.
+
+##Exercise 8
+
+##Broken code below
+read.csv("shrub-volume-data.csv")
+shrub_data |>
+  mutate(volume = length * width * height) |>
+  group_by(site) |>
+  summarize(mean_volume = max(volume))
+shrub_data |>
+  mutate(volume = length * width * height)
+  group_by(experiment) |>
+  summarize(mean_volume = mean(volume))
+
+##Fixed code below, all it required was a simple piping from the mutate() code to the group_by() code for the experiment section, with a quick skim I determined there was a |> missing. Here is the working code.
+
+```{r}
+read.csv('/Users/sanch/Documents/Schooldownloads/BIO197/Rstudio/Homeworks/Homeworks/data-raw/shrub-volume-data.csv')
+shrub_data |>
+    mutate(volume = length * width * height) |>
+    group_by(site) |>
+    summarize(mean_volume = max(volume))
+shrub_data |>
+    mutate(volume = length * width * height) |>
+group_by(experiment) |>
+    summarize(mean_volume = mean(volume))
+```
