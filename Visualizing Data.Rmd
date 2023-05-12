@@ -1,0 +1,137 @@
+---
+title: "Visualizing Data"
+author: "Erwing"
+date: "2023-05-09"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Installing packages, this one is for readr which allows readtsv
+
+## Had to update rlang with code, install.packages("rlang")
+
+## install.packages("readr")
+
+## Code to load readr
+
+```{R}
+library(readr)
+```
+
+## To read in trees dataframe
+
+```{r}
+trees <- read_tsv('data-raw/TREE_SURVEYS.txt',
+               col_types = list(HEIGHT = col_double(),
+                                AXIS_2 = col_double()))
+```
+## Received error when attempting to read_tsv says could not find function read_tsv
+
+## Received feedback from the instructor that library() must be used for readr package
+
+## Ran into issue that desired file does not exist in current working directory, fixed by switching directory
+
+## Ran into issue "Warning: One or more parsing issues, call problems()` on your data frame for details, e.g.: dat <- vroom(...) problems(dat)"
+
+## Managed to load in tree surveys data, can view now with, 'View(trees)'
+
+##created object canopy_area with the $ function by first using the specific table trees and then multipluing the columns
+```{r}
+canopy_area <- (trees$AXIS_1*trees$AXIS_2)
+```
+## Used this code to check if the columns multiplied properly by printing and then manually calculating first few values
+
+```{r}
+canopy_area
+```
+## Had to add the canopy_area as a column to the trees data frame
+```{r}
+trees$canopy_area <- canopy_area
+```
+
+## Can view if the canopy was added with bottom code
+
+```{r}
+View(trees)
+```
+
+## Finally after about 30mins of attempting to subset I finally managed to. Turns out I tried subsetting by names, but for this format it required numbers representing the columns.
+```{r}
+subset(trees[c(1, 2, 3, 17)])
+```
+
+## Needed to create dataframe subset of trees
+
+```{r}
+trees_subset <- subset(trees[c(1, 2, 3, 17)])
+```
+
+## Can view the subset produced with View() function
+
+```{r}
+View(trees_subset)
+```
+
+## Plot(trees$canopy_area,trees$HEIGHT,pch=2,col=trees$TREATMENT) had issues
+
+## Kept getting error, Error in plot.xy(xy, type, ...) : invalid color name 'TOTAL', to fix issue I found that I neeeded to change the TREATMENT from a character to a factor type.
+
+## Issue was fixed with code: trees$TREATMENT = as.factor(trees$TREATMENT)
+
+```{r}
+trees$TREATMENT = as.factor(trees$TREATMENT)
+```
+
+## Had to set color with code:
+```{r}
+col=rgb(100,0,0,50,maxColorValue=255)
+```
+
+## This code functions as plot(x axis, y axis, pch(which is point size), col(defined color) = (set variable for distinguishing data))
+
+```{r}
+plot(trees$canopy_area,trees$HEIGHT,pch=2,col=trees$TREATMENT, xlab = "Canopy Area (m)" , ylab = "Height (m)", main = "Acacia Height vs Canopy") 
+```
+
+## Read in ggplot2
+
+```{r}
+library(ggplot2)
+```
+
+## Now use the code below to make subplots
+
+```{R}
+ggplot(data = trees, mapping = aes(x = canopy_area, y = HEIGHT, color = TREATMENT)) + geom_point() +
+labs (x = "Canopy area") +
+facet_wrap(~SPECIES)
+```
+
+
+## Exercise 4
+
+## Load in txt file
+```{r}
+acacia <- read.csv(file = "/Users/sanch/Documents/Schooldownloads/BIO197/Rstudio/Homeworks/Homeworks/data-raw/ACACIA_DREPANOLOBIUM_SURVEY.txt",
+                   sep ="\t",
+                   na.strings = "dead")
+is.numeric(acacia$HEIGHT)
+```
+```{r}
+ggplot() +
+geom_point(data = trees, mapping = aes(x= CIRC, y= HEIGHT), color = "gray", alpha = 0.5) +
+geom_point(data = acacia, mapping =aes (x = AXIS1, y=AXIS2), color = "red", alpha = 0.6)
+```
+
+
+
+
+
+
+
+
